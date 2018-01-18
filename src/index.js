@@ -30,18 +30,22 @@ function grad2rad(deg) {
 function drawAxes() {
   ctx.beginPath();
 
+  // Vertical
   ctx.moveTo(env.padding, 0);
   ctx.lineTo(env.padding, env.height - env.padding);
   ctx.stroke();
 
+  // Horizontal
   ctx.lineTo(800, 595);
   ctx.stroke();
 
+  // Vertical arrow
   ctx.moveTo(0, env.padding);
   ctx.lineTo(env.padding, 0);
   ctx.lineTo(10, env.padding);
   ctx.stroke();
 
+  // Horizontal arrow
   ctx.moveTo(795, 590);
   ctx.lineTo(800, 595);
   ctx.lineTo(795, 600);
