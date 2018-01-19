@@ -8,15 +8,16 @@ const env = {
 };
 
 const mov = {
-  x0: 5,
-  y0: 595,
+  x0: 0,
+  y0: env.height,
   x: ko.observable(),
   y: null,
   yCart: ko.observable(),
-  thetaDeg: ko.observable(45),
+  thetaDeg: ko.observable(55),
   thetaRad: null,
-  v0: ko.observable(80),
-  radius: 8,
+  v0: ko.observable(90),
+  sides: 50,
+  img: new Image(),
 };
 
 ko.applyBindings(mov);
@@ -99,7 +100,7 @@ function drawVector(x, y, long, angle) {
   const yf = y0 - (long * Math.sin(angle));
 
   ctx.save();
-  ctx.strokeStyle = 'blue';
+  ctx.strokeStyle = 'red';
   ctx.lineWidth = 4;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -123,15 +124,11 @@ function calcTraj() {
   return { x, y };
 }
 
-function drawMov(x, y) {
-  ctx.fillStyle = 'red';
+function drawMov(xpar, ypar) {
+  const x = xpar - (mov.sides / 2) + env.padding;
+  const y = ypar - (mov.sides / 2) - env.padding;
 
-  const startAngle = 0;
-  const endAngle = 2 * Math.PI;
-
-  ctx.beginPath();
-  ctx.arc(x, y, mov.radius, startAngle, endAngle);
-  ctx.fill();
+  ctx.drawImage(mov.img, x, y);
 }
 
 function drawEnv() {
@@ -153,8 +150,8 @@ function loop() {
 
   drawEnv();
 
-  if (mov.y >= env.height - env.padding) {
-    drawMov(mov.x(), env.height - env.padding);
+  if (mov.y >= env.height) {
+    drawMov(mov.x(), env.height);
     return;
   }
 
@@ -174,6 +171,7 @@ function submit() {
 
 function init() {
   mov.thetaRad = deg2rad(mov.thetaDeg());
+  mov.img.src = './butterfly2.png';
 
   drawEnv();
   drawMov(mov.x0, mov.y0);
