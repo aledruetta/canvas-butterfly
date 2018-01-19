@@ -55,6 +55,7 @@ function drawAxes() {
 function drawGrid() {
   ctx.save();
   ctx.strokeStyle = 'gray';
+  ctx.lineWidth = 0.3;
 
   // Vertical
   for (let i = 0; i < (env.width / env.gridWidth); i++) {
@@ -99,6 +100,9 @@ function drawVector(x, y, long, angle) {
 
   ctx.save();
   ctx.strokeStyle = 'blue';
+  ctx.lineWidth = 4;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
 
   ctx.beginPath();
   ctx.moveTo(x0, y0);
