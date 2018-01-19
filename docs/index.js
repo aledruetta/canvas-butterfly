@@ -10,15 +10,20 @@ const env = {
 const mov = {
   x0: 5,
   y0: 595,
-  thetaDeg: 62,
+  x: ko.observable(),
+  y: null,
+  yCart: ko.observable(),
+  thetaDeg: ko.observable(45),
   thetaRad: null,
-  v0: 90,
+  v0: ko.observable(80),
   radius: 8,
 };
 
+ko.applyBindings(mov);
+
 const g = 9.8;
 const timeFactor = 275;
-const tStart = Date.now() / timeFactor;
+let tStart = null;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -108,8 +113,8 @@ function drawVector(x, y, long, angle) {
 
 function calcTraj() {
   const t = ((Date.now() / timeFactor) - tStart);
-  const x = mov.x0 + (mov.v0 * Math.cos(mov.thetaRad) * t);
-  const y = mov.y0 - (mov.v0 * Math.sin(mov.thetaRad) * t) + ((g * (t ** 2)) / 2);
+  const x = mov.x0 + (mov.v0() * Math.cos(mov.thetaRad) * t);
+  const y = mov.y0 - (mov.v0() * Math.sin(mov.thetaRad) * t) + ((g * (t ** 2)) / 2);
 
   return { x, y };
 }
@@ -125,31 +130,49 @@ function drawMov(x, y) {
   ctx.fill();
 }
 
-function loop() {
-  const pos = calcTraj();
-
+function drawEnv() {
   ctx.clearRect(0, 0, env.width, env.height);
 
   drawAxes();
   drawGrid();
-  drawVector(0, 0, mov.v0, mov.thetaRad);
 
-  if (pos.y >= env.height - env.padding) {
-    drawMov(pos.x, env.height - env.padding);
+  if (mov.v0() > 0) {
+    drawVector(0, 0, mov.v0(), mov.thetaRad);
+  }
+}
+
+function loop() {
+  const pos = calcTraj();
+  mov.x(pos.x);
+  mov.y = pos.y;
+  mov.yCart(env.height - env.padding - pos.y);
+
+  drawEnv();
+
+  if (mov.y >= env.height - env.padding) {
+    drawMov(mov.x(), env.height - env.padding);
     return;
   }
 
-  drawMov(pos.x, pos.y);
+  drawMov(mov.x(), mov.y);
 
   window.requestAnimationFrame(loop);
 }
 
-function init() {
-  mov.thetaRad = deg2rad(mov.thetaDeg);
+function submit() {
+  mov.thetaRad = deg2rad(mov.thetaDeg());
+  tStart = Date.now() / timeFactor;
 
   if (canvas.getContext) {
     window.requestAnimationFrame(loop);
   }
+}
+
+function init() {
+  mov.thetaRad = deg2rad(mov.thetaDeg());
+
+  drawEnv();
+  drawMov(mov.x0, mov.y0);
 }
 
 init();
