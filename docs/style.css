@@ -1,5 +1,6 @@
 .canvas {
   position: relative;
+  max-width: 825px;
 }
 
 .coords {
@@ -7,7 +8,7 @@
   border-radius: 5px;
   position: absolute;
   top: 16px;
-  left: 67%;
+  left: 78%;
   width: 10em;
   padding: 1em;
 }
