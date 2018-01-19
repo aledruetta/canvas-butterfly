@@ -1,15 +1,19 @@
-const env = {
-  width: 800,
-  height: 600,
-  padding: 5,
-  gridWidth: 100,
-  gridHeight: 100,
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+ctx.globalCompositeOperation = 'destination-over';
+
+const cartesian = {
   arrowWidth: 5,
+  gridHeight: 50,
+  gridWidth: 50,
+  height: 600,
+  pad: 15,
+  width: 800,
 };
 
 const mov = {
   x0: 0,
-  y0: env.height,
+  y0: cartesian.height,
   x: ko.observable(0),
   y: null,
   yCart: ko.observable(0),
@@ -26,10 +30,7 @@ const g = 9.8;
 const timeFactor = 275;
 let tStart = null;
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-ctx.globalCompositeOperation = 'destination-over';
-
+// Convert degree angles to radians
 function deg2rad(deg) {
   return (Math.PI / 180) * deg;
 }
@@ -38,19 +39,19 @@ function drawAxes() {
   ctx.beginPath();
 
   // Vertical
-  ctx.moveTo(env.padding, 0);
-  ctx.lineTo(env.padding, env.height - env.padding);
+  ctx.moveTo(cartesian.pad, 0);
+  ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad);
   ctx.stroke();
 
   // Horizontal
-  ctx.lineTo(800, 595);
+  ctx.lineTo(cartesian.width, cartesian.height - cartesian.pad);
   ctx.stroke();
 
   // Vertical arrow
-  drawArrow(Math.PI / 2, env.padding, 0);
+  drawArrow(Math.PI / 2, cartesian.pad, 0);
 
   // Horizontal arrow
-  drawArrow(0, env.width, env.height - env.padding);
+  drawArrow(0, cartesian.width, cartesian.height - cartesian.pad);
 }
 
 function drawGrid() {
@@ -60,18 +61,18 @@ function drawGrid() {
   ctx.setLineDash([2, 4]);
 
   // Vertical
-  for (let i = 0; i < (env.width / env.gridWidth); i++) {
+  for (let i = 0; i < (cartesian.width / cartesian.gridWidth); i++) {
     ctx.beginPath();
-    ctx.moveTo((i * env.gridWidth) + env.padding, 0);
-    ctx.lineTo((i * env.gridWidth) + env.padding, env.height - env.padding);
+    ctx.moveTo((i * cartesian.gridWidth) + cartesian.pad, 0);
+    ctx.lineTo((i * cartesian.gridWidth) + cartesian.pad, cartesian.height - cartesian.pad);
     ctx.stroke();
   }
 
   // Horizontal
-  for (let i = 1; i < (env.height / env.gridHeight); i++) {
+  for (let i = 1; i < (cartesian.height / cartesian.gridHeight); i++) {
     ctx.beginPath();
-    ctx.moveTo(env.padding, env.height - env.padding - (i * env.gridHeight));
-    ctx.lineTo(env.width, env.height - env.padding - (i * env.gridHeight));
+    ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad - (i * cartesian.gridHeight));
+    ctx.lineTo(cartesian.width, cartesian.height - cartesian.pad - (i * cartesian.gridHeight));
     ctx.stroke();
   }
 
@@ -80,7 +81,7 @@ function drawGrid() {
 
 function drawArrow(angle, xf, yf) {
   const arrowAngle1 = angle + (0.75 * Math.PI);
-  const hypo = 2 * (env.arrowWidth ** 2);
+  const hypo = 2 * (cartesian.arrowWidth ** 2);
   const arrowX1 = xf + (Math.sqrt(hypo) * Math.cos(arrowAngle1));
   const arrowY1 = yf - (Math.sqrt(hypo) * Math.sin(arrowAngle1));
   const arrowAngle2 = angle - (0.75 * Math.PI);
@@ -95,8 +96,8 @@ function drawArrow(angle, xf, yf) {
 }
 
 function drawVector(x, y, long, angle) {
-  const x0 = env.padding + x;
-  const y0 = env.height - env.padding - y;
+  const x0 = cartesian.pad + x;
+  const y0 = cartesian.height - cartesian.pad - y;
   const xf = x0 + (long * Math.cos(angle));
   const yf = y0 - (long * Math.sin(angle));
 
@@ -131,14 +132,14 @@ function calcPos() {
 }
 
 function drawMov(xpar, ypar) {
-  const x = xpar - (mov.sides / 2) + env.padding;
-  const y = ypar - (mov.sides / 2) - env.padding;
+  const x = xpar - (mov.sides / 2) + cartesian.pad;
+  const y = ypar - (mov.sides / 2) - cartesian.pad;
 
   ctx.drawImage(mov.img, x, y);
 }
 
 function drawEnv() {
-  ctx.clearRect(0, 0, env.width, env.height);
+  ctx.clearRect(0, 0, cartesian.width, cartesian.height);
 
   drawAxes();
   drawGrid();
@@ -152,16 +153,16 @@ function loop() {
   const pos = calcPos();
   mov.x(pos.x);
   mov.y = pos.y;
-  mov.yCart(env.height - pos.y);
+  mov.yCart(cartesian.height - pos.y);
 
   drawEnv();
 
-  if (mov.y < env.height) {
+  if (mov.y < cartesian.height) {
     drawMov(mov.x(), mov.y);
     window.requestAnimationFrame(loop);
   } else {
-    mov.y = env.height;
-    mov.yCart(env.height - mov.y);
+    mov.y = cartesian.height;
+    mov.yCart(cartesian.height - mov.y);
     drawMov(mov.x(), mov.y);
   }
 }
