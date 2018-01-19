@@ -10,11 +10,11 @@ const env = {
 const mov = {
   x0: 0,
   y0: env.height,
-  x: ko.observable(),
+  x: ko.observable(0),
   y: null,
-  yCart: ko.observable(),
-  thetaDeg: ko.observable(55),
-  thetaRad: null,
+  yCart: ko.observable(0),
+  vAngleD: ko.observable(55),
+  vAngleR: null,
   v0: ko.observable(90),
   sides: 50,
   img: new Image(),
@@ -57,6 +57,7 @@ function drawGrid() {
   ctx.save();
   ctx.strokeStyle = 'gray';
   ctx.lineWidth = 0.3;
+  ctx.setLineDash([2, 4]);
 
   // Vertical
   for (let i = 0; i < (env.width / env.gridWidth); i++) {
@@ -116,10 +117,15 @@ function drawVector(x, y, long, angle) {
   ctx.restore();
 }
 
-function calcTraj() {
-  const t = ((Date.now() / timeFactor) - tStart);
-  const x = mov.x0 + (mov.v0() * Math.cos(mov.thetaRad) * t);
-  const y = mov.y0 - (mov.v0() * Math.sin(mov.thetaRad) * t) + ((g * (t ** 2)) / 2);
+function calcPos() {
+  let t = 0;
+
+  if (tStart != null) {
+    t = ((Date.now() / timeFactor) - tStart);
+  }
+
+  const x = mov.x0 + (mov.v0() * Math.cos(mov.vAngleR) * t);
+  const y = mov.y0 - (mov.v0() * Math.sin(mov.vAngleR) * t) + ((g * (t ** 2)) / 2);
 
   return { x, y };
 }
@@ -138,12 +144,12 @@ function drawEnv() {
   drawGrid();
 
   if (mov.v0() > 0) {
-    drawVector(0, 0, mov.v0(), mov.thetaRad);
+    drawVector(0, 0, mov.v0(), mov.vAngleR);
   }
 }
 
 function loop() {
-  const pos = calcTraj();
+  const pos = calcPos();
   mov.x(pos.x);
   mov.y = pos.y;
   mov.yCart(env.height - pos.y);
@@ -161,7 +167,7 @@ function loop() {
 }
 
 function submit() {
-  mov.thetaRad = deg2rad(mov.thetaDeg());
+  mov.vAngleR = deg2rad(mov.vAngleD());
   tStart = Date.now() / timeFactor;
 
   if (canvas.getContext) {
@@ -170,11 +176,13 @@ function submit() {
 }
 
 function init() {
-  mov.thetaRad = deg2rad(mov.thetaDeg());
+  mov.vAngleR = deg2rad(mov.vAngleD());
   mov.img.src = './butterfly2.png';
 
-  drawEnv();
-  drawMov(mov.x0, mov.y0);
+  if (canvas.getContext) {
+    drawEnv();
+    drawMov(mov.x0, mov.y0);
+  }
 }
 
 init();

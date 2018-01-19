@@ -18,13 +18,13 @@
   <body>
 
     <div class="container">
-      <h1>Univesp Butterfly Animator</h1>
+      <h1>Univesp Butterfly Simulator</h1>
       <canvas id="canvas" width="800" height="600"></canvas>
       <div class="controls">
         <form class="" data-bind="submit: submit">
           <label for="angle">Ângulo:</label>
           <input id="angle" type="number"
-            data-bind="value: thetaDeg,
+            data-bind="value: vAngleD,
                        valueUpdate: true">
 
           <label for="v0">V<sub>0</sub>:</label>
@@ -38,7 +38,8 @@
 
           <input type="submit" value="Animar">
         </form>
-        <p><em><sup>*</sup>Por enquanto, você só pode modificar ângulo e módulo da velocidade inicial.</em></p>
+
+        <p><em><sup>*</sup>Por enquanto, você só poderá modificar ângulo e módulo da velocidade inicial.</em></p>
       </div>
     </div>
 
