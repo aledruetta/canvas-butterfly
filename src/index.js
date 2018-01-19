@@ -10,9 +10,9 @@ const env = {
 const mov = {
   x0: 5,
   y0: 595,
-  thetaDeg: 85,
+  thetaDeg: 62,
   thetaRad: null,
-  v0: 95,
+  v0: 90,
   radius: 8,
 };
 
@@ -127,11 +127,18 @@ function drawMov(x, y) {
 
 function loop() {
   const pos = calcTraj();
+
   ctx.clearRect(0, 0, env.width, env.height);
 
   drawAxes();
   drawGrid();
   drawVector(0, 0, mov.v0, mov.thetaRad);
+
+  if (pos.y >= env.height - env.padding) {
+    drawMov(pos.x, env.height - env.padding);
+    return;
+  }
+
   drawMov(pos.x, pos.y);
 
   window.requestAnimationFrame(loop);
