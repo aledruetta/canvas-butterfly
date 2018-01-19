@@ -100,7 +100,7 @@ function drawVector(x, y, long, angle) {
   const yf = y0 - (long * Math.sin(angle));
 
   ctx.save();
-  ctx.strokeStyle = 'red';
+  ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
   ctx.lineWidth = 4;
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
@@ -146,18 +146,18 @@ function loop() {
   const pos = calcTraj();
   mov.x(pos.x);
   mov.y = pos.y;
-  mov.yCart(env.height - env.padding - pos.y);
+  mov.yCart(env.height - pos.y);
 
   drawEnv();
 
-  if (mov.y >= env.height) {
-    drawMov(mov.x(), env.height);
-    return;
+  if (mov.y < env.height) {
+    drawMov(mov.x(), mov.y);
+    window.requestAnimationFrame(loop);
+  } else {
+    mov.y = env.height;
+    mov.yCart(env.height - mov.y);
+    drawMov(mov.x(), mov.y);
   }
-
-  drawMov(mov.x(), mov.y);
-
-  window.requestAnimationFrame(loop);
 }
 
 function submit() {
