@@ -4,12 +4,13 @@ const env = {
   padding: 5,
   gridWidth: 100,
   gridHeight: 100,
+  arrowWidth: 5,
 };
 
 const mov = {
   x0: 5,
   y0: 595,
-  thetaDeg: 65,
+  thetaDeg: 85,
   thetaRad: null,
   v0: 95,
   radius: 8,
@@ -23,7 +24,7 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 ctx.globalCompositeOperation = 'destination-over';
 
-function grad2rad(deg) {
+function deg2rad(deg) {
   return (Math.PI / 180) * deg;
 }
 
@@ -40,20 +41,13 @@ function drawAxes() {
   ctx.stroke();
 
   // Vertical arrow
-  ctx.moveTo(0, env.padding);
-  ctx.lineTo(env.padding, 0);
-  ctx.lineTo(10, env.padding);
-  ctx.stroke();
+  drawArrow(Math.PI / 2, env.padding, 0);
 
   // Horizontal arrow
-  ctx.moveTo(795, 590);
-  ctx.lineTo(800, 595);
-  ctx.lineTo(795, 600);
-  ctx.stroke();
+  drawArrow(0, env.width, env.height - env.padding);
 }
 
 function drawGrid() {
-  ctx.beginPath();
   ctx.save();
   ctx.strokeStyle = 'gray';
 
@@ -72,6 +66,42 @@ function drawGrid() {
     ctx.lineTo(env.width, env.height - env.padding - (i * env.gridHeight));
     ctx.stroke();
   }
+
+  ctx.restore();
+}
+
+function drawArrow(angle, xf, yf) {
+  const arrowAngle1 = angle + (0.75 * Math.PI);
+  const hypo = 2 * (env.arrowWidth ** 2);
+  const arrowX1 = xf + (Math.sqrt(hypo) * Math.cos(arrowAngle1));
+  const arrowY1 = yf - (Math.sqrt(hypo) * Math.sin(arrowAngle1));
+  const arrowAngle2 = angle - (0.75 * Math.PI);
+  const arrowX2 = xf + (Math.sqrt(hypo) * Math.cos(arrowAngle2));
+  const arrowY2 = yf - (Math.sqrt(hypo) * Math.sin(arrowAngle2));
+
+  ctx.beginPath();
+  ctx.moveTo(arrowX1, arrowY1);
+  ctx.lineTo(xf, yf);
+  ctx.lineTo(arrowX2, arrowY2);
+  ctx.stroke();
+}
+
+function drawVector(x, y, long, angle) {
+  const x0 = env.padding + x;
+  const y0 = env.height - env.padding - y;
+  const xf = x0 + (long * Math.cos(angle));
+  const yf = y0 - (long * Math.sin(angle));
+
+  ctx.save();
+  ctx.strokeStyle = 'blue';
+
+  ctx.beginPath();
+  ctx.moveTo(x0, y0);
+  ctx.lineTo(xf, yf);
+  ctx.stroke();
+
+  // Arrow
+  drawArrow(angle, xf, yf);
 
   ctx.restore();
 }
@@ -101,13 +131,14 @@ function loop() {
 
   drawAxes();
   drawGrid();
+  drawVector(0, 0, mov.v0, mov.thetaRad);
   drawMov(pos.x, pos.y);
 
   window.requestAnimationFrame(loop);
 }
 
 function init() {
-  mov.thetaRad = grad2rad(mov.thetaDeg);
+  mov.thetaRad = deg2rad(mov.thetaDeg);
 
   if (canvas.getContext) {
     window.requestAnimationFrame(loop);
