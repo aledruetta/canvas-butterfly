@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Butterfly</title>
 
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
     <link rel="stylesheet" href="style.css">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -18,32 +22,55 @@
   <body>
 
     <div class="container">
-      <h1>Univesp Butterfly Simulator</h1>
-      <canvas id="canvas" width="800" height="600"></canvas>
-      <div class="controls">
-        <form class="" data-bind="submit: submit">
-          <label for="angle">Ângulo:</label>
-          <input id="angle" type="number"
-            data-bind="value: vAngleD,
-                       valueUpdate: true">
+      <div class="row">
+        <div class="col-12-sm">
 
-          <label for="v0">V<sub>0</sub>:</label>
-          <input id="v0"type="number" data-bind="value: v0">
+          <h1>Univesp Butterfly Simulator</h1>
+          <div class="canvas">
+            <div class="coords">
+              <div class="">
+                x: <span class="coord--item" data-bind="text: x"></span>
+              </div>
+              <div class="">
+                y: <span class="coord--item" data-bind="text: yCart"></span>
+              </div>
+            </div>
+            <canvas id="canvas" width="800" height="600"></canvas>
+          </div>
 
-          <label for="x">x:</label>
-          <input id="x" type="number" data-bind="value: x" readonly>
+        </div>
+      </div>
 
-          <label for="y">y:</label>
-          <input id="y" type="number" data-bind="value: yCart" readonly>
+      <div class="row">
+        <div class="col-12-sm">
 
-          <input type="submit" value="Animar">
-        </form>
+          <div class="controls">
+            <form class="form-controls form-inline" data-bind="submit: submit">
 
-        <p><em><sup>*</sup>Por enquanto, você só poderá modificar ângulo e módulo da velocidade inicial.</em></p>
+              <label for="angle">Ângulo:</label>
+              <input id="angle" class="form-control" type="number"
+              data-bind="value: vAngleD,
+              valueUpdate: true">
+
+              <label for="v0">V<sub>0</sub>:</label>
+              <input id="v0" class="form-control" type="number" data-bind="value: v0">
+
+              <input class="form-control btn-danger" type="submit" value="Animar">
+
+            </form>
+
+            <p><em><sup>*</sup>Por enquanto, você só poderá modificar ângulo e módulo da velocidade inicial.</em></p>
+
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js"></script>
     <script src="index.js"></script>
   </body>

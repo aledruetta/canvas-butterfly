@@ -7,7 +7,7 @@ const cartesian = {
   gridHeight: 50,
   gridWidth: 50,
   height: 600,
-  pad: 15,
+  pad: 25,
   width: 800,
 };
 
@@ -27,7 +27,7 @@ const mov = {
 ko.applyBindings(mov);
 
 const g = 9.8;
-const timeFactor = 275;
+const timeFactor = 225;
 let tStart = null;
 
 // Convert degree angles to radians
@@ -118,6 +118,13 @@ function drawVector(x, y, long, angle) {
   ctx.restore();
 }
 
+function roundFloat(fNumber, precision) {
+  const pow = 10 ** precision;
+  let tmp = fNumber * pow;
+  tmp = Math.floor(tmp);
+  return tmp / pow;
+}
+
 function calcPos() {
   let t = 0;
 
@@ -132,8 +139,8 @@ function calcPos() {
 }
 
 function drawMov(xpar, ypar) {
-  const x = xpar - (mov.sides / 2) + cartesian.pad;
-  const y = ypar - (mov.sides / 2) - cartesian.pad;
+  const x = xpar + cartesian.pad;
+  const y = ypar - (mov.sides ) - cartesian.pad;
 
   ctx.drawImage(mov.img, x, y);
 }
@@ -151,9 +158,9 @@ function drawEnv() {
 
 function loop() {
   const pos = calcPos();
-  mov.x(pos.x);
+  mov.x(roundFloat(pos.x, 2));
   mov.y = pos.y;
-  mov.yCart(cartesian.height - pos.y);
+  mov.yCart(roundFloat(cartesian.height - pos.y, 2));
 
   drawEnv();
 
