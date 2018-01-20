@@ -95,11 +95,12 @@ function drawArrow(angle, xf, yf) {
   ctx.stroke();
 }
 
-function drawVector(x, y, long, angle) {
+function drawVector(x, y, long, angleD) {
+  const angleR = deg2rad(angleD);
   const x0 = cartesian.pad + x;
   const y0 = cartesian.height - cartesian.pad - y;
-  const xf = x0 + (long * Math.cos(angle));
-  const yf = y0 - (long * Math.sin(angle));
+  const xf = x0 + (long * Math.cos(angleR));
+  const yf = y0 - (long * Math.sin(angleR));
 
   ctx.save();
   ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
@@ -113,7 +114,7 @@ function drawVector(x, y, long, angle) {
   ctx.stroke();
 
   // Arrow
-  drawArrow(angle, xf, yf);
+  drawArrow(angleR, xf, yf);
 
   ctx.restore();
 }
@@ -140,7 +141,7 @@ function calcPos() {
 
 function drawMov(xpar, ypar) {
   const x = xpar + cartesian.pad;
-  const y = ypar - (mov.sides ) - cartesian.pad;
+  const y = ypar - (mov.sides) - cartesian.pad;
 
   ctx.drawImage(mov.img, x, y);
 }
@@ -152,9 +153,11 @@ function drawEnv() {
   drawGrid();
 
   if (mov.v0() > 0) {
-    drawVector(0, 0, mov.v0(), mov.vAngleR);
+    drawVector(0, 0, mov.v0(), mov.vAngleD());
   }
 }
+
+let lastx = mov.x0;
 
 function loop() {
   const pos = calcPos();
@@ -166,17 +169,20 @@ function loop() {
 
   if (mov.y < cartesian.height) {
     drawMov(mov.x(), mov.y);
-    window.requestAnimationFrame(loop);
+    lastx = mov.x();
   } else {
+    mov.x(lastx);
     mov.y = cartesian.height;
     mov.yCart(cartesian.height - mov.y);
-    drawMov(mov.x(), mov.y);
+    drawMov(lastx, mov.y);
   }
+
+  window.requestAnimationFrame(loop);
 }
 
 function submit() {
-  mov.vAngleR = deg2rad(mov.vAngleD());
   tStart = Date.now() / timeFactor;
+  mov.vAngleR = deg2rad(mov.vAngleD());
 
   if (canvas.getContext) {
     window.requestAnimationFrame(loop);
@@ -190,6 +196,7 @@ function init() {
   if (canvas.getContext) {
     drawEnv();
     drawMov(mov.x0, mov.y0);
+    window.requestAnimationFrame(loop);
   }
 }
 
