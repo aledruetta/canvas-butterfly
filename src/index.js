@@ -19,7 +19,8 @@ const mov = {
   yCart: ko.observable(0),
   vAngleD: ko.observable(55),
   vAngleR: null,
-  v0: ko.observable(90),
+  v0Vector: ko.observable(90),
+  v0: null,
   sides: 50,
   img: new Image(),
 };
@@ -133,8 +134,8 @@ function calcPos() {
     t = ((Date.now() / timeFactor) - tStart);
   }
 
-  const x = mov.x0 + (mov.v0() * Math.cos(mov.vAngleR) * t);
-  const y = mov.y0 - (mov.v0() * Math.sin(mov.vAngleR) * t) + ((g * (t ** 2)) / 2);
+  const x = mov.x0 + (mov.v0 * Math.cos(mov.vAngleR) * t);
+  const y = mov.y0 - (mov.v0 * Math.sin(mov.vAngleR) * t) + ((g * (t ** 2)) / 2);
 
   return { x, y };
 }
@@ -152,8 +153,8 @@ function drawEnv() {
   drawAxes();
   drawGrid();
 
-  if (mov.v0() > 0) {
-    drawVector(0, 0, mov.v0(), mov.vAngleD());
+  if (mov.v0Vector() > 0) {
+    drawVector(0, 0, mov.v0Vector(), mov.vAngleD());
   }
 }
 
@@ -183,6 +184,7 @@ function loop() {
 function submit() {
   tStart = Date.now() / timeFactor;
   mov.vAngleR = deg2rad(mov.vAngleD());
+  mov.v0 = mov.v0Vector();
 
   if (canvas.getContext) {
     window.requestAnimationFrame(loop);
