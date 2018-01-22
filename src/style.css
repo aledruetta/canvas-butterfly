@@ -6,7 +6,7 @@
   margin-top: 2em;
 }
 
-.coords {
+.info {
   background-color: rgba(200, 200, 200, 0.5);
   border-radius: 5px;
   position: absolute;
@@ -17,7 +17,7 @@
   padding-left: 2em;
 }
 
-.coord--item {
+.info--item {
   display: inline-block;
 }
 
