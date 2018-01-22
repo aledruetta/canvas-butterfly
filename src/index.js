@@ -144,9 +144,8 @@ function calcPosition() {
   const y = roundFloat(mov.y0 + (mov.v0 * Math.sin(mov.vAngleR) * t)
             - ((g * (t ** 2)) / 2), 2);
 
-  if (y < 0) hitFloor = true;
-
-  if (hitFloor) {
+  if (y < 0 || hitFloor) {
+    hitFloor = true;
     mov.x(lastX);
     mov.y(0);
   } else {
