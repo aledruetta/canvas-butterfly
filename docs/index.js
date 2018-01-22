@@ -7,20 +7,20 @@ const cartesian = {
   gridHeight: 50,
   gridWidth: 50,
   height: 600,
-  pad: 25,
   width: 800,
+  pad: 25,
 };
 
 const mov = {
   x0: 0,
-  y0: cartesian.height,
+  y0: 0,
   x: ko.observable(0),
-  y: null,
-  yCart: ko.observable(0),
-  vAngleD: ko.observable(55),
+  y: ko.observable(0),
+  vAngleD: ko.observable(62),
   vAngleR: null,
-  v0Vector: ko.observable(90),
+  v0Vector: ko.observable(13),
   v0: null,
+  t: ko.observable(0),
   sides: 50,
   img: new Image(),
 };
@@ -28,7 +28,9 @@ const mov = {
 ko.applyBindings(mov);
 
 const g = 9.8;
-const timeFactor = 225;
+const millis = 1000;
+const xScaleFactor = cartesian.gridWidth;
+const yScaleFactor = cartesian.gridHeight;
 let tStart = null;
 
 // Convert degree angles to radians
@@ -39,19 +41,19 @@ function deg2rad(deg) {
 function drawAxes() {
   ctx.beginPath();
 
-  // Vertical
+  // Y Axe
   ctx.moveTo(cartesian.pad, 0);
   ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad);
   ctx.stroke();
 
-  // Horizontal
+  // X Axe
   ctx.lineTo(cartesian.width, cartesian.height - cartesian.pad);
   ctx.stroke();
 
-  // Vertical arrow
+  // Y arrow
   drawArrow(Math.PI / 2, cartesian.pad, 0);
 
-  // Horizontal arrow
+  // X arrow
   drawArrow(0, cartesian.width, cartesian.height - cartesian.pad);
 }
 
@@ -61,7 +63,7 @@ function drawGrid() {
   ctx.lineWidth = 0.3;
   ctx.setLineDash([2, 4]);
 
-  // Vertical
+  // Y lines
   for (let i = 0; i < (cartesian.width / cartesian.gridWidth); i++) {
     ctx.beginPath();
     ctx.moveTo((i * cartesian.gridWidth) + cartesian.pad, 0);
@@ -69,7 +71,7 @@ function drawGrid() {
     ctx.stroke();
   }
 
-  // Horizontal
+  // X lines
   for (let i = 1; i < (cartesian.height / cartesian.gridHeight); i++) {
     ctx.beginPath();
     ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad - (i * cartesian.gridHeight));
@@ -100,8 +102,8 @@ function drawVector(x, y, long, angleD) {
   const angleR = deg2rad(angleD);
   const x0 = cartesian.pad + x;
   const y0 = cartesian.height - cartesian.pad - y;
-  const xf = x0 + (long * Math.cos(angleR));
-  const yf = y0 - (long * Math.sin(angleR));
+  const xf = x0 + (long * Math.cos(angleR) * (xScaleFactor / 3));
+  const yf = y0 - (long * Math.sin(angleR) * (yScaleFactor / 3));
 
   ctx.save();
   ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
@@ -114,7 +116,6 @@ function drawVector(x, y, long, angleD) {
   ctx.lineTo(xf, yf);
   ctx.stroke();
 
-  // Arrow
   drawArrow(angleR, xf, yf);
 
   ctx.restore();
@@ -124,27 +125,63 @@ function roundFloat(fNumber, precision) {
   const pow = 10 ** precision;
   let tmp = fNumber * pow;
   tmp = Math.floor(tmp);
+
   return tmp / pow;
 }
 
-function calcPos() {
+let lastX = 0;
+let hitFloor = false;
+
+function calcPosition() {
   let t = 0;
 
-  if (tStart != null) {
-    t = ((Date.now() / timeFactor) - tStart);
+  if (tStart != null && !hitFloor) {
+    t = (Date.now() / millis) - tStart;
+    mov.t(roundFloat(t, 2));
   }
 
-  const x = mov.x0 + (mov.v0 * Math.cos(mov.vAngleR) * t);
-  const y = mov.y0 - (mov.v0 * Math.sin(mov.vAngleR) * t) + ((g * (t ** 2)) / 2);
+  lastX = mov.x();
+  const x = roundFloat(mov.x0 + (mov.v0 * Math.cos(mov.vAngleR) * t), 2);
+  const y = roundFloat(mov.y0 + (mov.v0 * Math.sin(mov.vAngleR) * t)
+            - ((g * (t ** 2)) / 2), 2);
 
-  return { x, y };
+  if (y < 0 || hitFloor) {
+    hitFloor = true;
+    mov.x(lastX);
+    mov.y(0);
+  } else {
+    mov.x(x);
+    mov.y(y);
+  }
 }
 
-function drawMov(xpar, ypar) {
-  const x = xpar + cartesian.pad;
-  const y = ypar - (mov.sides) - cartesian.pad;
-
+function drawMov() {
+  calcPosition();
+  const x = (mov.x() * xScaleFactor) + cartesian.pad;
+  const y = cartesian.height - cartesian.pad - mov.sides - (mov.y() * yScaleFactor);
   ctx.drawImage(mov.img, x, y);
+}
+
+function drawComp() {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0, 0, 255, 0.3)';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Y component
+  ctx.beginPath();
+  ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad);
+  ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad - (mov.y() * yScaleFactor));
+  ctx.stroke();
+
+  // X component
+  ctx.beginPath();
+  ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad);
+  ctx.lineTo(cartesian.pad + (mov.x() * xScaleFactor), cartesian.height - cartesian.pad);
+  ctx.stroke();
+
+  ctx.restore();
 }
 
 function drawEnv() {
@@ -158,31 +195,17 @@ function drawEnv() {
   }
 }
 
-let lastx = mov.x0;
-
 function loop() {
-  const pos = calcPos();
-  mov.x(roundFloat(pos.x, 2));
-  mov.y = pos.y;
-  mov.yCart(roundFloat(cartesian.height - pos.y, 2));
-
   drawEnv();
-
-  if (mov.y < cartesian.height) {
-    drawMov(mov.x(), mov.y);
-    lastx = mov.x();
-  } else {
-    mov.x(lastx);
-    mov.y = cartesian.height;
-    mov.yCart(cartesian.height - mov.y);
-    drawMov(lastx, mov.y);
-  }
+  drawMov();
+  drawComp();
 
   window.requestAnimationFrame(loop);
 }
 
 function submit() {
-  tStart = Date.now() / timeFactor;
+  tStart = Date.now() / millis;
+  hitFloor = false;
   mov.vAngleR = deg2rad(mov.vAngleD());
   mov.v0 = mov.v0Vector();
 
@@ -196,8 +219,6 @@ function init() {
   mov.img.src = './butterfly2.png';
 
   if (canvas.getContext) {
-    drawEnv();
-    drawMov(mov.x0, mov.y0);
     window.requestAnimationFrame(loop);
   }
 }

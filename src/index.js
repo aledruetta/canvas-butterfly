@@ -7,8 +7,8 @@ const cartesian = {
   gridHeight: 50,
   gridWidth: 50,
   height: 600,
-  pad: 25,
   width: 800,
+  pad: 25,
 };
 
 const mov = {
@@ -16,9 +16,9 @@ const mov = {
   y0: 0,
   x: ko.observable(0),
   y: ko.observable(0),
-  vAngleD: ko.observable(55),
+  vAngleD: ko.observable(62),
   vAngleR: null,
-  v0Vector: ko.observable(90),
+  v0Vector: ko.observable(13),
   v0: null,
   t: ko.observable(0),
   sides: 50,
@@ -29,6 +29,8 @@ ko.applyBindings(mov);
 
 const g = 9.8;
 const millis = 1000;
+const xScaleFactor = cartesian.gridWidth;
+const yScaleFactor = cartesian.gridHeight;
 let tStart = null;
 
 // Convert degree angles to radians
@@ -39,19 +41,19 @@ function deg2rad(deg) {
 function drawAxes() {
   ctx.beginPath();
 
-  // Vertical
+  // Y Axe
   ctx.moveTo(cartesian.pad, 0);
   ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad);
   ctx.stroke();
 
-  // Horizontal
+  // X Axe
   ctx.lineTo(cartesian.width, cartesian.height - cartesian.pad);
   ctx.stroke();
 
-  // Vertical arrow
+  // Y arrow
   drawArrow(Math.PI / 2, cartesian.pad, 0);
 
-  // Horizontal arrow
+  // X arrow
   drawArrow(0, cartesian.width, cartesian.height - cartesian.pad);
 }
 
@@ -61,7 +63,7 @@ function drawGrid() {
   ctx.lineWidth = 0.3;
   ctx.setLineDash([2, 4]);
 
-  // Vertical
+  // Y lines
   for (let i = 0; i < (cartesian.width / cartesian.gridWidth); i++) {
     ctx.beginPath();
     ctx.moveTo((i * cartesian.gridWidth) + cartesian.pad, 0);
@@ -69,7 +71,7 @@ function drawGrid() {
     ctx.stroke();
   }
 
-  // Horizontal
+  // X lines
   for (let i = 1; i < (cartesian.height / cartesian.gridHeight); i++) {
     ctx.beginPath();
     ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad - (i * cartesian.gridHeight));
@@ -100,8 +102,8 @@ function drawVector(x, y, long, angleD) {
   const angleR = deg2rad(angleD);
   const x0 = cartesian.pad + x;
   const y0 = cartesian.height - cartesian.pad - y;
-  const xf = x0 + (long * Math.cos(angleR));
-  const yf = y0 - (long * Math.sin(angleR));
+  const xf = x0 + (long * Math.cos(angleR) * (xScaleFactor / 3));
+  const yf = y0 - (long * Math.sin(angleR) * (yScaleFactor / 3));
 
   ctx.save();
   ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
@@ -114,7 +116,6 @@ function drawVector(x, y, long, angleD) {
   ctx.lineTo(xf, yf);
   ctx.stroke();
 
-  // Arrow
   drawArrow(angleR, xf, yf);
 
   ctx.restore();
@@ -156,8 +157,8 @@ function calcPosition() {
 
 function drawMov() {
   calcPosition();
-  const x = mov.x() + cartesian.pad;
-  const y = cartesian.height - cartesian.pad - mov.sides - mov.y();
+  const x = (mov.x() * xScaleFactor) + cartesian.pad;
+  const y = cartesian.height - cartesian.pad - mov.sides - (mov.y() * yScaleFactor);
   ctx.drawImage(mov.img, x, y);
 }
 
@@ -171,13 +172,13 @@ function drawComp() {
   // Y component
   ctx.beginPath();
   ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad);
-  ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad - mov.y());
+  ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad - (mov.y() * yScaleFactor));
   ctx.stroke();
 
   // X component
   ctx.beginPath();
   ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad);
-  ctx.lineTo(cartesian.pad + mov.x(), cartesian.height - cartesian.pad);
+  ctx.lineTo(cartesian.pad + (mov.x() * xScaleFactor), cartesian.height - cartesian.pad);
   ctx.stroke();
 
   ctx.restore();
