@@ -16,6 +16,8 @@ const mov = {
   y0: 0,
   x: ko.observable(0),
   y: ko.observable(0),
+  xMax: cartesian.pad,
+  yMax: cartesian.height - cartesian.pad,
   vAngleD: ko.observable(62),
   vAngleR: null,
   v0Vector: ko.observable(13),
@@ -170,9 +172,10 @@ function drawComp() {
   ctx.lineJoin = 'round';
 
   // Y component
+  const y = cartesian.height - cartesian.pad - (mov.y() * yScaleFactor);
   ctx.beginPath();
   ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad);
-  ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad - (mov.y() * yScaleFactor));
+  ctx.lineTo(cartesian.pad, y);
   ctx.stroke();
 
   // X component
@@ -182,6 +185,15 @@ function drawComp() {
   ctx.stroke();
 
   ctx.restore();
+
+  // Y max
+  if (y > mov.yMax) {
+    ctx.moveTo(cartesian.pad - cartesian.arrowWidth, mov.yMax);
+    ctx.lineTo(cartesian.pad + cartesian.arrowWidth, mov.yMax);
+    ctx.stroke();
+  } else {
+    mov.yMax = y;
+  }
 }
 
 function drawEnv() {
@@ -206,6 +218,8 @@ function loop() {
 function submit() {
   tStart = Date.now() / millis;
   hitFloor = false;
+  mov.xMax = cartesian.pad;
+  mov.yMax = cartesian.height - cartesian.pad;
   mov.vAngleR = deg2rad(mov.vAngleD());
   mov.v0 = mov.v0Vector();
 
