@@ -161,6 +161,28 @@ function drawMov() {
   ctx.drawImage(mov.img, x, y);
 }
 
+function drawComp() {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0, 0, 255, 0.3)';
+  ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Y component
+  ctx.beginPath();
+  ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad);
+  ctx.lineTo(cartesian.pad, cartesian.height - cartesian.pad - mov.y());
+  ctx.stroke();
+
+  // X component
+  ctx.beginPath();
+  ctx.moveTo(cartesian.pad, cartesian.height - cartesian.pad);
+  ctx.lineTo(cartesian.pad + mov.x(), cartesian.height - cartesian.pad);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
 function drawEnv() {
   ctx.clearRect(0, 0, cartesian.width, cartesian.height);
 
@@ -175,6 +197,7 @@ function drawEnv() {
 function loop() {
   drawEnv();
   drawMov();
+  drawComp();
 
   window.requestAnimationFrame(loop);
 }
