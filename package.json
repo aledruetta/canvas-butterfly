@@ -25,6 +25,7 @@
     "eslint-plugin-react": "^7.12.4"
   },
   "dependencies": {
+    "js-yaml": "^3.13.1",
     "lodash": "^4.17.13"
   }
 }
