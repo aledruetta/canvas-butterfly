@@ -18,14 +18,14 @@
   },
   "homepage": "https://github.com/aledruetta/canvas-butterfly#readme",
   "devDependencies": {
-    "eslint": "^5.16.0",
-    "eslint-config-airbnb": "^17.1.1",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.1.0",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.19.0"
   },
   "dependencies": {
     "js-yaml": "^3.13.1",
-    "lodash": "^4.17.13"
+    "lodash": "^4.17.15"
   }
 }
